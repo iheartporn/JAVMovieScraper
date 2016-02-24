@@ -1,25 +1,14 @@
 package moviescraper.doctord.controller.siteparsingprofile;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-
+import moviescraper.doctord.controller.AbstractMovieScraper;
+import moviescraper.doctord.controller.GenericMovieScraper;
+import moviescraper.doctord.controller.languagetranslation.Language;
+import moviescraper.doctord.model.SearchResult;
+import moviescraper.doctord.model.dataitem.*;
+import moviescraper.doctord.model.dataitem.Set;
+import moviescraper.doctord.model.preferences.MoviescraperPreferences;
+import moviescraper.doctord.view.GUIMain;
+import moviescraper.doctord.view.SearchKeywordsPanel;
 import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
@@ -28,34 +17,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import moviescraper.doctord.controller.AbstractMovieScraper;
-import moviescraper.doctord.controller.GenericMovieScraper;
-import moviescraper.doctord.controller.languagetranslation.Language;
-import moviescraper.doctord.model.SearchResult;
-import moviescraper.doctord.model.dataitem.Actor;
-import moviescraper.doctord.model.dataitem.DataItemSource;
-import moviescraper.doctord.model.dataitem.Director;
-import moviescraper.doctord.model.dataitem.Genre;
-import moviescraper.doctord.model.dataitem.ID;
-import moviescraper.doctord.model.dataitem.MPAARating;
-import moviescraper.doctord.model.dataitem.OriginalTitle;
-import moviescraper.doctord.model.dataitem.Outline;
-import moviescraper.doctord.model.dataitem.Plot;
-import moviescraper.doctord.model.dataitem.Rating;
-import moviescraper.doctord.model.dataitem.ReleaseDate;
-import moviescraper.doctord.model.dataitem.Set;
-import moviescraper.doctord.model.dataitem.SortTitle;
-import moviescraper.doctord.model.dataitem.Studio;
-import moviescraper.doctord.model.dataitem.Tag;
-import moviescraper.doctord.model.dataitem.Tagline;
-import moviescraper.doctord.model.dataitem.Thumb;
-import moviescraper.doctord.model.dataitem.Title;
-import moviescraper.doctord.model.dataitem.Top250;
-import moviescraper.doctord.model.dataitem.Trailer;
-import moviescraper.doctord.model.dataitem.Votes;
-import moviescraper.doctord.model.dataitem.Year;
-import moviescraper.doctord.model.preferences.MoviescraperPreferences;
-import moviescraper.doctord.view.GUIMain;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class SiteParsingProfile implements DataItemSource{
 	
@@ -266,6 +236,43 @@ public abstract class SiteParsingProfile implements DataItemSource{
 	public abstract Studio scrapeStudio();
 	
 	public  abstract String createSearchString(File file);
+
+	//Added call to try to help searching vby name since some files have odd names
+	public String GetSearchKeywords(String file){
+
+		String fileBaseName = file;
+
+		//Splitting up the name for keyword selection. Also attempting to split up CamelCase text for more options
+		List<String> AllKeywords = new ArrayList<>();
+		String regexPattern = "[ .,\\[\\(\\)\\]-]";
+		for (String Keyword : file.split(regexPattern)) {
+			if(!Keyword.trim().isEmpty()) {
+				String[] Keyword2Split = Keyword.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
+				if(Keyword2Split.length > 1) {
+					for (String SplitKeyword : Keyword2Split) {
+						AllKeywords.add(SplitKeyword);
+					}
+				}
+				AllKeywords.add(Keyword);
+			}
+		}
+
+		SearchKeywordsPanel keywords = new SearchKeywordsPanel(AllKeywords);
+
+		//TODO: Didn't know which parent form to specify
+		int result = JOptionPane.showOptionDialog(null, keywords, "Edit tags...",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+				null, null, null);
+		if(result == JOptionPane.OK_OPTION) {
+			AllKeywords = keywords.editedTagList;
+			fileBaseName = "";
+			for (String tag : AllKeywords) {
+				fileBaseName += " " + tag.trim();
+			}
+		}
+
+		return fileBaseName;
+	}
 	
 	public Trailer scrapeTrailer() {
 		return Trailer.BLANK_TRAILER;

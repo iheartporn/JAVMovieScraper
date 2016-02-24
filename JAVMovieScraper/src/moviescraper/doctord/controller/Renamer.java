@@ -2,9 +2,11 @@ package moviescraper.doctord.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +19,9 @@ import moviescraper.doctord.model.dataitem.Title;
 import moviescraper.doctord.model.preferences.MoviescraperPreferences;
 
 public class Renamer {
+
+
+	//TODO: iheartporn - REGEX to find all tags in brackets: https://regex101.com/r/aQ8vC0/1 or "/<\w*[a-z]*>/g" maybe we can use this to uppercase expected format tags. Maybe we can use this to uppercase tags
 
 	private String fileNameRenameString;
 	private String folderNameRenameString;
@@ -34,6 +39,8 @@ public class Renamer {
 	//file tags
 	private final static String ID = "<ID>";
 	private final static String TITLE = "<TITLE>";
+	//CHANGED: iheartporn - Added to provide a clean folder name
+	private final static String CLEAN_TITLE = "<CLEAN_TITLE>";
 	private final static String ACTORS = "<ACTORS>";
 	private final static String YEAR = "<YEAR>";
 	private final static String RELEASEDATE = "<RELEASEDATE>";
@@ -47,7 +54,7 @@ public class Renamer {
 	//folder tags
 	private final static String BASEDIRECTORY = "<BASEDIRECTORY>";
 	private final static String PATHSEPERATOR = "<PATHSEPERATOR>";
-	private final static String[] availableFolderRenameTags = {BASEDIRECTORY, PATHSEPERATOR, ID, TITLE, ACTORS, GENRES, SET, STUDIO, YEAR, RELEASEDATE, ORIGINALTITLE};
+	private final static String[] availableFolderRenameTags = {BASEDIRECTORY, PATHSEPERATOR, ID, CLEAN_TITLE, TITLE, ACTORS, GENRES, SET, STUDIO, YEAR, RELEASEDATE, ORIGINALTITLE};
 	
 	public Renamer(String fileNameRenameString, String folderNameRenameString, String sanitizer, Movie toRename, File oldFile) {
 		this.fileNameRenameString = fileNameRenameString;
@@ -56,6 +63,8 @@ public class Renamer {
 		this.movie = toRename;
 		this.originalTitle = movie.getTitle();
 		this.oldFile = oldFile;
+
+
 	}
 	
 	/**
@@ -73,7 +82,8 @@ public class Renamer {
 		String dot = ".";
 		if(oldFile.isDirectory())
 			dot = "";
-		String newName = getSanitizedString (replace(fileNameRenameString));
+		String newName = getSanitizedString(replace(fileNameRenameString));
+
 		if(isFolderName)
 		{
 			newName = path + newName;
@@ -117,12 +127,15 @@ public class Renamer {
 		}
 		newPath = cutPath + newPath;
 		System.out.println("New path: " + newPath);
+
 		return newPath;
 	}
 
 	private String replace(String target) {
 		String movieID = movie.getId().getId();
 		String movieTitle = movie.getTitle().getTitle();
+		//Might be able to find a better way to clean this title
+		String movieTitleCleaned = SiteParsingHelper.getSanitizedFolderString( movie.getTitle().getTitle());
 		List<Actor> movieActorsList = movie.getActors();
 		String movieActors = combineActorList(movieActorsList);
 		String movieYear = movie.getYear().getYear();
@@ -142,6 +155,7 @@ public class Renamer {
 		//metadata stuff
 		newName = renameReplaceAll(newName, ID, movieID);
 		newName = renameReplaceAll(newName, TITLE, movieTitle);
+		newName = renameReplaceAll(newName, CLEAN_TITLE, movieTitleCleaned);
 		newName = renameReplaceAll(newName, YEAR, movieYear);
 		newName = renameReplaceAll(newName, RELEASEDATE, movieReleaseDate);
 		newName = renameReplaceAll(newName, ORIGINALTITLE, movieOriginalTitle);

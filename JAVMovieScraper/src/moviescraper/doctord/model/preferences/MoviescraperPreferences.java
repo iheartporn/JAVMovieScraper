@@ -17,6 +17,7 @@ public class MoviescraperPreferences extends Settings {
 		nfoNamedMovieDotNfo, //.nfo file written out will always be called "movie.nfo"
 		useIAFDForActors, //No longer used. Replaced by Amalgamation settings.
 		sanitizerForFilename, //Used to help remove illegal characters when renaming the file. For the most part, the user does not need to change this.
+		sanitizerForFoldername, //Used to help remove illegal characters when moving files. For the most part, the user does not need to change this.
 		renamerString, //Renamer string set in the renamer configuration gui to apply a renamer rule to the file's name
 		folderRenamerString, ////Renamer string set in the renamer configuration gui to apply a renamer rule to the file's folder name
 		renameMovieFile, //File will be renamed according to renamer rules when writing the movie file's metadata out to disk.
@@ -29,7 +30,10 @@ public class MoviescraperPreferences extends Settings {
 		selectSearchResultManuallyWhenScraping, //Confirmation dialog to allow user to pick which search result they want to use will be shown.
 		confirmCleanUpFileNameNameBeforeRenaming, // Show a dialog asking the user to confirm the rename of a file each time using the File Name Cleanup feature
 		frequentlyUsedGenres, //Used in genre editing to store user's list of frequently used genres to aid in quickly adding genres to a movie
-		frequentlyUsedTags //Used in tag editing to store user's list of frequently used tags to aid in quickly adding tags to a movie
+		frequentlyUsedTags, //Used in tag editing to store user's list of frequently used tags to aid in quickly adding tags to a movie
+
+		useFileNameForOriginalTitle, //Will use the FIle Name for the Original title if not populated
+		moveAllFilesInSameFolder //Will try to move any other files in the same directory as the current file is in (Only apply to files)
 		;
 
 		@Override
@@ -68,8 +72,6 @@ public class MoviescraperPreferences extends Settings {
 	public void setWriteFanartAndPostersPreference(boolean preferenceValue){
 		setBooleanValue(Key.writeFanartAndPosters, preferenceValue);
 	}
-
-
 
 	public void setDownloadActorImagesToActorFolderPreference(boolean preferenceValue)
 	{
@@ -235,7 +237,7 @@ public class MoviescraperPreferences extends Settings {
 	{
 		setBooleanValue(Key.confirmCleanUpFileNameNameBeforeRenaming, preferenceValue);
 	}
-	
+
 	public String getfrequentlyUsedGenres()
 	{
 		return getStringValue(Key.frequentlyUsedGenres, "Adult" + FavoriteGenrePickerPanel.listSeperator +  "JAV");
@@ -245,7 +247,9 @@ public class MoviescraperPreferences extends Settings {
 	{
 		setStringValue(Key.frequentlyUsedGenres, value);
 	}
-	
+
+
+
 	public String getfrequentlyUsedTags()
 	{
 		return getStringValue(Key.frequentlyUsedTags, "Feature");
@@ -255,4 +259,25 @@ public class MoviescraperPreferences extends Settings {
 	{
 		setStringValue(Key.frequentlyUsedTags, value);
 	}
+
+	//CHANGED: iheartporn - Added a few new options
+	public static String getSanitizerForFoldername() {
+		return getStringValue(Key.sanitizerForFoldername, "[/:*?\"<>|\\r\\n]|[ ]+$|(?<=[^.])[.]+$|(?<=.{250})(.+)(?=[.]p{Alnum}{3}$)");
+	}
+	public void setSanitizerForFoldername(String preferenceValue) {
+		setStringValue(Key.sanitizerForFoldername, preferenceValue);
+	}
+
+
+	public void setUseFileNameForOriginalTitle(boolean preferenceValue)
+	{
+		setBooleanValue(Key.useFileNameForOriginalTitle, preferenceValue);
+	}
+
+	public boolean getUseFileNameForOriginalTitle()
+	{
+		return getBooleanValue(Key.useFileNameForOriginalTitle, false);
+	}
+
+
 }

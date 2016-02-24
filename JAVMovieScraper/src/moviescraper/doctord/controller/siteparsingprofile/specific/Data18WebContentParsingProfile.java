@@ -1,5 +1,17 @@
 package moviescraper.doctord.controller.siteparsingprofile.specific;
 
+import moviescraper.doctord.controller.siteparsingprofile.SiteParsingProfile;
+import moviescraper.doctord.model.SearchResult;
+import moviescraper.doctord.model.dataitem.*;
+import moviescraper.doctord.model.dataitem.Runtime;
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.net.URLCodec;
+import org.apache.commons.io.FilenameUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -11,37 +23,6 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import moviescraper.doctord.controller.siteparsingprofile.SiteParsingProfile;
-import moviescraper.doctord.model.SearchResult;
-import moviescraper.doctord.model.dataitem.Actor;
-import moviescraper.doctord.model.dataitem.Director;
-import moviescraper.doctord.model.dataitem.Genre;
-import moviescraper.doctord.model.dataitem.ID;
-import moviescraper.doctord.model.dataitem.MPAARating;
-import moviescraper.doctord.model.dataitem.OriginalTitle;
-import moviescraper.doctord.model.dataitem.Outline;
-import moviescraper.doctord.model.dataitem.Plot;
-import moviescraper.doctord.model.dataitem.Rating;
-import moviescraper.doctord.model.dataitem.ReleaseDate;
-import moviescraper.doctord.model.dataitem.Runtime;
-import moviescraper.doctord.model.dataitem.Set;
-import moviescraper.doctord.model.dataitem.SortTitle;
-import moviescraper.doctord.model.dataitem.Studio;
-import moviescraper.doctord.model.dataitem.Tagline;
-import moviescraper.doctord.model.dataitem.Thumb;
-import moviescraper.doctord.model.dataitem.Title;
-import moviescraper.doctord.model.dataitem.Top250;
-import moviescraper.doctord.model.dataitem.Votes;
-import moviescraper.doctord.model.dataitem.Year;
-
-import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.net.URLCodec;
-import org.apache.commons.io.FilenameUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 public class Data18WebContentParsingProfile extends SiteParsingProfile implements SpecificProfile{
 	boolean useSiteSearch = true;
@@ -108,7 +89,7 @@ public class Data18WebContentParsingProfile extends SiteParsingProfile implement
 			{
 				releaseDateElement = document.select("div p:contains(Date:) b").first();
 			}
-			dateFormatToUse = new SimpleDateFormat("MMMM, yyyy", Locale.ENGLISH);
+			dateFormatToUse = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH);
 		}
 		if(releaseDateElement != null)
 		{
@@ -476,7 +457,12 @@ public class Data18WebContentParsingProfile extends SiteParsingProfile implement
 		{
 			URLCodec codec = new URLCodec();
 			try {
-				fileBaseName = codec.encode(fileBaseName);
+				//if overridenSearchResult has a value we shouldn't need this again
+				if(getOverridenSearchResult() == null){
+					//return "";
+					fileBaseName = codec.encode(GetSearchKeywords(file.getName()));
+				}
+				//fileBaseName = codec.encode(fileBaseName);
 			} catch (EncoderException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

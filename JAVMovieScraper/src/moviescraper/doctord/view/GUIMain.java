@@ -1,6 +1,6 @@
 package moviescraper.doctord.view;
 
-import java.awt.EventQueue;
+import java.awt.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -13,8 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
-import java.awt.BorderLayout;
-
 import javax.swing.JList;
 
 import moviescraper.doctord.controller.SelectFileListAction;
@@ -26,11 +24,6 @@ import moviescraper.doctord.model.dataitem.Actor;
 import moviescraper.doctord.model.preferences.GuiSettings;
 import moviescraper.doctord.model.preferences.MoviescraperPreferences;
 import moviescraper.doctord.view.renderer.FileRenderer;
-
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.SystemColor;
 
 import javax.swing.UIManager;
 
@@ -127,6 +120,8 @@ public class GUIMain {
 					GUIMain window = new GUIMain();
 					System.out.println("Gui Initialized");
 					window.frmMoviescraper.setVisible(true);
+					//TODO: Fixed screen height here. Maybe something more elegant can be done.
+					window.frmMoviescraper.setSize(window.getFrmMoviescraper().getWidth(), GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().height);
 				} catch (Exception e) {
 					e.printStackTrace();
 					JOptionPane.showMessageDialog(null, ExceptionUtils.getStackTrace(e),"Unhandled Exception",JOptionPane.ERROR_MESSAGE);

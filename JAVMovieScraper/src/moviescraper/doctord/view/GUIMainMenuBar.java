@@ -372,7 +372,27 @@ public class GUIMainMenuBar extends JMenuBar{
 			}
 		});
 		preferenceMenu.add(confirmNameForFileNameCleanup);
-		
+
+		//CHANGED: iheartporn - Added more options to application
+		preferenceMenu.addSeparator();
+
+		//Checkbox for Use filename for Original Title when empty
+		JCheckBoxMenuItem useFileNameForOriginalTitle = new JCheckBoxMenuItem("Use filename for Original Title when empty");
+		useFileNameForOriginalTitle.setState(getPreferences().getUseFileNameForOriginalTitle());
+		useFileNameForOriginalTitle.addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				//save the menu choice off to the preference object (and the disk based settings file)
+				if(e.getStateChange() == ItemEvent.SELECTED)
+					getPreferences().setUseFileNameForOriginalTitle(true);
+				else if(e.getStateChange() == ItemEvent.DESELECTED)
+					getPreferences().setUseFileNameForOriginalTitle(false);
+
+			}
+		});
+		preferenceMenu.add(useFileNameForOriginalTitle);
+
 		
 		add(preferenceMenu);
 
